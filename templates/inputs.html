@@ -1,0 +1,49 @@
+{% include 'header.html' %}
+    <main>
+        <h2>Input Documentation</h2>
+        <p>This page displays input documentation for where claim edit requirements are sourced from.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Document Name</th>
+                    <th>URL</th>
+                    <th>Document Summary</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for input in inputs %}
+                <tr>
+                    <td><a href="{{ url_for('input_contents', input_id=input.id) }}">{{ input.document_name }}</a></td>
+                    <td>
+                        {% if input.document_url %}
+                        <a href="{{ input.document_url }}" target="_blank">Link</a>
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if input.document_summary %}
+                            <div id="summary-{{ input.id }}" class="editable-summary" data-input-id="{{ input.id }}">
+                                <div class="markdown-content"></div>
+                                <div class="markdown-source" style="display: none;">{{ input.document_summary }}</div>
+                            </div>
+                        {% else %}
+                            <button onclick="generateSummary({{ input.id }})">✨ Generate Document Summary ✨</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h3>Add New Input</h3>
+        <form method="POST" action="{{ url_for('add_input') }}">
+            <label for="document_url">Document URL:</label>
+            <input type="url" id="document_url" name="document_url" required>
+            <button type="submit">Add Input</button>
+        </form>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

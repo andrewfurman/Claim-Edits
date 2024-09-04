@@ -1,0 +1,149 @@
+{% include 'header.html' %}
+<main>
+    <button id="saveButton" style="display: none;">💾 Save</button>
+    <h2 id="documentName" contenteditable="true">{{ input.document_name }}</h2>
+    <p><a href="{{ input.document_url }}" target="_blank">Original Document</a></p>
+
+    <h3>Document Summary:</h3>
+    <div id="summary-{{ input.id }}" class="editable-summary document-summary" data-input-id="{{ input.id }}">
+        <div class="markdown-content"></div>
+        <div class="markdown-source" style="display: none;">{{ input.document_summary }}</div>
+    </div>
+
+    <h3>Related Claim Edits:
+        <button id="generateEditsButton" class="generate-edits-btn" data-input-id="{{ input.id }}">
+            ✨ Generate Edits ✨
+        </button>
+    </h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Edit ID</th>
+                <th>Description</th>
+                <th>Message</th>
+                <th>Conditions</th>
+                <th>Non-Conditions</th>
+            </tr>
+        </thead>
+        <tbody id="claimEditsTable">
+            {% for edit in claim_edits %}
+            <tr>
+                <td>{{ edit.id }}</td>
+                <td>{{ edit.edit_description }}</td>
+                <td>{{ edit.edit_message }}</td>
+                <td>{{ edit.edit_conditions }}</td>
+                <td>{{ edit.edit_non_conditions }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Document Contents:</h3>
+    <pre id="documentContents" contenteditable="true">{{ input.document_contents }}</pre>
+    <button id="deleteButton" style="background-color: red; color: white; margin-top: 20px;">Delete Input</button>
+</main>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const summaries = document.querySelectorAll('.editable-summary');
+        summaries.forEach(setupEditableSummary);
+    });
+
+    const saveButton = document.getElementById('saveButton');
+    const editableFields = document.querySelectorAll('[contenteditable="true"]');
+    let hasChanges = false;
+
+    editableFields.forEach(field => {
+        field.addEventListener('input', () => {
+            hasChanges = true;
+            saveButton.style.display = 'block';
+        });
+    });
+
+    saveButton.addEventListener('click', () => {
+        if (hasChanges) {
+            const data = {
+                document_name: document.getElementById('documentName').textContent,
+                document_summary: document.querySelector('.markdown-source').textContent,
+                document_contents: document.getElementById('documentContents').textContent
+            };
+
+            fetch('/input/{{ input.id }}/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Changes saved successfully!');
+                    hasChanges = false;
+                    saveButton.style.display = 'none';
+                } else {
+                    alert('Error saving changes. Please try again.');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Error saving changes. Please try again.');
+            });
+        }
+    });
+
+    const deleteButton = document.getElementById('deleteButton');
+    deleteButton.addEventListener('click', () => {
+        if (confirm('Are you sure you want to delete this input? This action cannot be undone.')) {
+            fetch('/input/{{ input.id }}/delete', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/';
+                } else {
+                    alert('Error deleting input. Please try again.');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Error deleting input. Please try again.');
+            });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const generateEditsButton = document.getElementById('generateEditsButton');
+        generateEditsButton.addEventListener('click', function() {
+            const inputId = this.dataset.inputId;
+            generateEditsButton.disabled = true;
+            generateEditsButton.textContent = 'Generating...';
+
+            fetch(`/input/${inputId}/generate_edits`, {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload(); // Reload the page to show new edits
+                } else {
+                    throw new Error(data.error || 'Failed to generate edits');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Error: ${error.message}`);
+            })
+            .finally(() => {
+                generateEditsButton.disabled = false;
+                generateEditsButton.textContent = '✨ Generate Edits ✨';
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
