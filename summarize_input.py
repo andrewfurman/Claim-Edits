@@ -42,7 +42,7 @@ def summarize_input(input_id):
                     "properties": {
                         "summary": {
                             "type": "string",
-                            "description": "A three-bullet-point summary formatted as markdown bullet points. Each bullet point will start with an emoji distrinctly representing the bullet point, followed by a boleded title, followed by a colon, then a one sentance detailed description free of filler words. Also insert a new line between each bullet point."
+                            "description": "A three-bullet-point summary always formatted as markdown bullet points. Each bullet point will start with an emoji distrinctly representing the bullet point, followed by a boleded title, followed by a colon, then a one sentance detailed description free of filler words. Also insert a new line between each bullet point. The bullet points should always be formated using asteriks such as * First item * Second item * Third item"
                         },
                         "generated_name": {
                             "type": "string",

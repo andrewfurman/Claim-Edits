@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    const documentName = document.getElementById('documentName');
+    if (documentName) {
+        documentName.contentEditable = false;
+        setupEditableDocumentName(documentName);
+    }
 });
 
 function setupEditableSummary(summary) {
@@ -158,5 +164,73 @@ function generateSummary(inputId) {
     .catch(error => {
         console.error('Error:', error);
         summaryElement.textContent = `Error: ${error.message}`;
+    });
+}
+
+function setupEditableDocumentName(element) {
+    let originalContent;
+
+    element.addEventListener('dblclick', function() {
+        if (this.contentEditable === 'false') {
+            this.contentEditable = true;
+            originalContent = this.textContent;
+            this.focus();
+
+            const saveButton = document.createElement('button');
+            saveButton.textContent = '💾 Save';
+            saveButton.style.marginLeft = '10px';
+            saveButton.addEventListener('click', function() {
+                saveDocumentName(element);
+            });
+            element.parentNode.insertBefore(saveButton, element.nextSibling);
+        }
+    });
+
+    element.addEventListener('blur', function() {
+        if (!event.relatedTarget || !event.relatedTarget.textContent.includes('Save')) {
+            this.contentEditable = false;
+            this.textContent = originalContent;
+            const saveButton = this.nextElementSibling;
+            if (saveButton && saveButton.textContent.includes('Save')) {
+                saveButton.remove();
+            }
+        }
+    });
+}
+
+function saveDocumentName(element) {
+    const newName = element.textContent.trim();
+    const inputId = element.dataset.inputId;
+
+    fetch(`/input/${inputId}/update`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            document_name: newName
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            element.contentEditable = false;
+            const saveButton = element.nextElementSibling;
+            if (saveButton && saveButton.textContent.includes('Save')) {
+                saveButton.remove();
+            }
+        } else {
+            throw new Error(data.error || 'Unknown error occurred');
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert(`Error saving changes: ${error.message}`);
+        element.textContent = originalContent;
     });
 }

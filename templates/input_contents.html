@@ -1,7 +1,7 @@
 {% include 'header.html' %}
 <main>
     <button id="saveButton" style="display: none;">💾 Save</button>
-    <h2 id="documentName" contenteditable="true">{{ input.document_name }}</h2>
+    <h2 id="documentName" data-input-id="{{ input.id }}">{{ input.document_name }}</h2>
     <p><a href="{{ input.document_url }}" target="_blank">Original Document</a></p>
 
     <h3>Document Summary:</h3>

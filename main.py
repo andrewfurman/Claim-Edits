@@ -13,7 +13,7 @@ migrate = Migrate(app, db)
 
 @app.route('/')
 def index():
-    inputs = Input.query.all()
+    inputs = Input.query.order_by(Input.id.asc()).all()
     return render_template('inputs.html', inputs=inputs)
 
 @app.route('/add_input', methods=['POST'])
