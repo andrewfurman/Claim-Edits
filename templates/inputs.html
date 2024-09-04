@@ -37,10 +37,10 @@
             </tbody>
         </table>
         <h3>Add New Input</h3>
-        <form method="POST" action="{{ url_for('add_input') }}">
+        <form id="addInputForm" method="POST" action="{{ url_for('add_input') }}">
             <label for="document_url">Document URL:</label>
             <input type="url" id="document_url" name="document_url" required>
-            <button type="submit">Add Input</button>
+            <button type="submit" id="addInputButton">Add Input</button>
         </form>
     </main>
 

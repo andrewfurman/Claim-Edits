@@ -1,6 +1,42 @@
 document.addEventListener('DOMContentLoaded', function() {
     const summaries = document.querySelectorAll('.editable-summary');
     summaries.forEach(setupEditableSummary);
+
+    // Add event listener for the add input form
+    const addInputForm = document.getElementById('addInputForm');
+    const addInputButton = document.getElementById('addInputButton');
+
+    if (addInputForm) {
+        addInputForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            addInputButton.textContent = 'Adding...';
+            addInputButton.disabled = true;
+
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || 'Failed to add input');
+                    });
+                }
+                return response.text();
+            })
+            .then(() => {
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Error adding input: ${error.message}`);
+            })
+            .finally(() => {
+                addInputButton.textContent = 'Add Input';
+                addInputButton.disabled = false;
+            });
+        });
+    }
 });
 
 function setupEditableSummary(summary) {
@@ -8,7 +44,12 @@ function setupEditableSummary(summary) {
     const markdownSource = summary.querySelector('.markdown-source');
 
     if (markdownContent && markdownSource) {
-        markdownContent.innerHTML = marked.parse(markdownSource.textContent);
+        let sourceText = markdownSource.textContent;
+        // Convert to string if it's somehow still an array
+        if (Array.isArray(sourceText)) {
+            sourceText = sourceText.join('\n\n');
+        }
+        markdownContent.innerHTML = marked.parse(sourceText);
     }
 
     summary.addEventListener('dblclick', function() {
@@ -101,9 +142,12 @@ function generateSummary(inputId) {
     })
     .then(data => {
         if (data.success) {
+            // Convert summary to string if it's an array
+            let summaryText = Array.isArray(data.summary) ? data.summary.join('\n') : data.summary;
+            
             summaryElement.innerHTML = `
-                <div class="markdown-content">${marked.parse(data.summary)}</div>
-                <div class="markdown-source" style="display: none;">${data.summary}</div>
+                <div class="markdown-content">${marked.parse(summaryText)}</div>
+                <div class="markdown-source" style="display: none;">${summaryText}</div>
             `;
 
             setupEditableSummary(summaryElement);

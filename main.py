@@ -19,16 +19,20 @@ def index():
 @app.route('/add_input', methods=['POST'])
 def add_input():
     document_url = request.form['document_url']
+    app.logger.info(f"Received request to add input with URL: {document_url}")
     try:
         new_input = Input.create_from_url(document_url)
         if new_input is None:
-            raise ValueError("Failed to create Input object from URL")
+            raise ValueError(f"Failed to create Input object from URL: {document_url}")
+        app.logger.info("Successfully created Input object")
         db.session.add(new_input)
         db.session.commit()
+        app.logger.info("Successfully added Input to database")
+        return redirect(url_for('index'))
     except Exception as e:
-        app.logger.error(f"Error adding input: {str(e)}")
-        return "An error occurred while adding the input. Please try again.", 500
-    return redirect(url_for('index'))
+        error_message = f"Error adding input: {str(e)}"
+        app.logger.error(error_message, exc_info=True)
+        return jsonify({"success": False, "error": error_message}), 500
 
 @app.route('/input/<int:input_id>')
 def input_contents(input_id):

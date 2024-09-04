@@ -4,6 +4,7 @@ from sqlalchemy.orm import DeclarativeBase
 import requests
 from bs4 import BeautifulSoup
 from extract_contents import extract_text_from_pdf
+import logging
 
 class Base(DeclarativeBase):
     pass
@@ -27,37 +28,43 @@ class Input(db.Model):
 
     @classmethod
     def create_from_url(cls, url):
+        logging.info(f"Attempting to create Input from URL: {url}")
         try:
             response = requests.get(url)
-            response.raise_for_status()  # Raises an HTTPError for bad responses
+            response.raise_for_status()
+            logging.info(f"Successfully fetched URL: {url}")
 
             content_type = response.headers.get('Content-Type', '').lower()
+            logging.info(f"Content-Type: {content_type}")
 
             if 'application/pdf' in content_type:
-                document_name = url.split('/')[-1]
-                document_contents = extract_text_from_pdf(response.content)
+                document_contents = extract_text_from_pdf(url)
+                logging.info("Extracted text from PDF")
             else:
-                # Detect the encoding
-                encoding = response.encoding if response.encoding else 'utf-8'
+                encodings = ['utf-8', 'latin-1', 'iso-8859-1', 'windows-1252']
+                document_contents = None
 
-                # Try to decode with the detected encoding, fallback to 'latin-1' if it fails
-                try:
-                    decoded_content = response.content.decode(encoding)
-                except UnicodeDecodeError:
-                    decoded_content = response.content.decode('latin-1')
+                for encoding in encodings:
+                    try:
+                        document_contents = response.content.decode(encoding)
+                        logging.info(f"Successfully decoded content with {encoding}")
+                        break
+                    except UnicodeDecodeError:
+                        logging.warning(f"Failed to decode with {encoding}")
 
-                soup = BeautifulSoup(decoded_content, 'html.parser')
-                document_name = soup.title.string if soup.title else "Untitled Document"
-                document_contents = soup.get_text()
+                if document_contents is None:
+                    logging.warning("All decoding attempts failed, using 'utf-8' with 'ignore'")
+                    document_contents = response.content.decode('utf-8', errors='ignore')
 
             new_input = cls(
-                document_name=document_name,
+                document_name=url,  # Use URL as document name
                 document_url=url,
                 document_contents=document_contents
             )
+            logging.info("Successfully created new Input object")
             return new_input
         except Exception as e:
-            print(f"Error creating Input from URL: {str(e)}")
+            logging.error(f"Error creating Input from URL: {str(e)}", exc_info=True)
             return None
 
 class ClaimEdit(db.Model):
