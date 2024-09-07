@@ -335,41 +335,37 @@ td .editable-summary {
   overflow-x: auto;
   max-width: 100%;
 }
-
 .claim-edits-table {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
 }
-
 .claim-edits-table th,
 .claim-edits-table td {
   border: 1px solid #ddd;
   padding: 8px;
   vertical-align: top;
 }
-
 .claim-edits-table th {
   background-color: var(--pwc-dark-blue);
   color: var(--white);
 }
-
 .claim-edits-table td {
   white-space: normal;
   word-wrap: break-word;
 }
 
 .claim-edits-table .cell-content {
-  max-height: 100px;
-  overflow-y: auto;
+  /* Remove max-height and overflow-y */
+  width: 100%;
+  height: auto;
 }
 
+/* Adjust column widths */
 .claim-edits-table th:nth-child(1),
 .claim-edits-table td:nth-child(1) { width: 50px; }
-
 .claim-edits-table th:nth-child(2),
-.claim-edits-table td:nth-child(2) { width: 250px; }
-
+.claim-edits-table td:nth-child(2) { width: 150px; }
 .claim-edits-table th:nth-child(3),
 .claim-edits-table td:nth-child(3),
 .claim-edits-table th:nth-child(4),
