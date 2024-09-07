@@ -69,11 +69,6 @@ def add_input():
     else:
         return jsonify(success=False, error="No URL or legacy code provided")
 
-@app.route('/input/<int:input_id>')
-def input_contents(input_id):
-    input_item = Input.query.get_or_404(input_id)
-    return render_template('input_contents.html', input=input_item)
-
 @app.route('/input/<int:input_id>/update', methods=['POST'])
 def update_input(input_id):
     input_item = Input.query.get_or_404(input_id)
@@ -106,10 +101,15 @@ def summarize_input(input_id):
         db.session.rollback()
         return jsonify(success=False, error=str(e)), 500
 
-@app.route('/claim_edits')
-def claim_edits():
-    edits = ClaimEdit.query.all()
-    return render_template('claim_edits.html', claim_edits=edits)
+@app.route('/input/<int:input_id>')
+def input_contents(input_id):
+    input_item = Input.query.get_or_404(input_id)
+    claim_edits = ClaimEdit.query.filter_by(input_id=input_id).all()
+    return render_template(
+        'input_contents.html',
+        input=input_item,
+        claim_edits=claim_edits
+    )
 
 @app.route('/conflicts')
 def conflicts():
@@ -143,6 +143,11 @@ def generate_edits(input_id):
         return jsonify(success=True, edits=edits)
     except Exception as e:
         return jsonify(success=False, error=str(e)), 500
+
+@app.route('/claim_edits')
+def claim_edits():
+    claim_edits = ClaimEdit.query.all()
+    return render_template('claim_edits.html', claim_edits=claim_edits)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=81)
