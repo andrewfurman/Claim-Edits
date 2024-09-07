@@ -36,7 +36,47 @@ document.addEventListener('DOMContentLoaded', function() {
     if (addInputForm) {
         addInputForm.addEventListener('submit', handleAddInput);
     }
+
+    const deleteButton = document.getElementById('deleteButton');
+    if (deleteButton) {
+        // Remove any existing event listeners
+        deleteButton.replaceWith(deleteButton.cloneNode(true));
+
+        // Get the new button (after replacing)
+        const newDeleteButton = document.getElementById('deleteButton');
+
+        newDeleteButton.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent any default action
+            event.stopPropagation(); // Stop event from bubbling up
+
+            const inputId = document.getElementById('documentName').dataset.inputId;
+            if (!this.disabled) { // Check if button is not already disabled
+                this.disabled = true; // Disable the button to prevent double clicks
+                deleteInput(inputId);
+            }
+        });
+    }
 });
+
+function deleteInput(inputId) {
+    if (confirm('Are you sure you want to delete this input?')) {
+        fetch(`/input/${inputId}/delete`, {
+            method: 'POST',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/';  // Redirect to the main page
+            } else {
+                throw new Error(data.error || "Failed to delete input");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error deleting input: ${error.message}`);
+        });
+    }
+}
 
 function handleAddInput(event) {
     event.preventDefault();
