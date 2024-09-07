@@ -27,48 +27,22 @@ def index():
 
 @app.route('/add_input', methods=['POST'])
 def add_input():
-    url = request.form.get('document_url')
-    legacy_code = request.form.get('legacy_code')
-    logger.info(f"Received request to add input. URL: {url}, Legacy Code: {'Present' if legacy_code else 'Not present'}")
-    if url:
-        # Check if the URL already exists
-        existing_input = Input.query.filter_by(document_url=url).first()
-        if existing_input:
-            logger.info("Duplicate URL detected, not adding to database")
-            return jsonify(success=False, error="This URL has already been added")
-        new_input = Input.create_from_url(url)
-        if new_input:
-            try:
-                db.session.add(new_input)
-                db.session.commit()
-                logger.info("Successfully added Input to database")
-                return jsonify(success=True, message="Input added successfully")
-            except SQLAlchemyError as e:
-                db.session.rollback()
-                logger.error(f"Database error occurred: {str(e)}")
-                return jsonify(success=False, error="An error occurred while adding the input to the database")
-        else:
-            return jsonify(success=False, error="Failed to create input from URL")
+    document_url = request.form.get('document_url')
     
-    # ... rest of the function remains the same ...
-    elif legacy_code:
-        # Handle legacy code input
-        new_input = Input(
-            document_name="Legacy Code",
-            document_contents=legacy_code,
-            document_type="legacy_code"
-        )
-        try:
+    if not document_url:
+        return jsonify({"success": False, "error": "No URL provided"}), 400
+    
+    try:
+        new_input = Input.create_from_url(document_url)
+        if new_input:
             db.session.add(new_input)
             db.session.commit()
-            logger.info("Successfully added legacy code Input to database")
-            return jsonify(success=True, message="Legacy code added successfully")
-        except IntegrityError:
-            db.session.rollback()
-            logger.info("Integrity error occurred, not adding legacy code to database")
-            return jsonify(success=False, error="An error occurred while adding the legacy code")
-    else:
-        return jsonify(success=False, error="No URL or legacy code provided")
+            return jsonify({"success": True, "message": "Input added successfully"}), 200
+        else:
+            return jsonify({"success": False, "error": "Failed to create input from URL"}), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/input/<int:input_id>/update', methods=['POST'])
 def update_input(input_id):

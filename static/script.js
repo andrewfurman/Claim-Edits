@@ -31,7 +31,56 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    const addInputForm = document.getElementById('addInputForm');
+    if (addInputForm) {
+        addInputForm.addEventListener('submit', handleAddInput);
+    }
 });
+
+function handleAddInput(event) {
+    event.preventDefault();
+    const form = event.target;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    let startTime = Date.now();
+    let timerInterval;
+    // Disable the button and show loading state
+    submitButton.disabled = true;
+    submitButton.style.backgroundColor = 'gray';
+    updateAddInputButtonText();
+    // Start the timer
+    timerInterval = setInterval(updateAddInputButtonText, 1000);
+    // Send the form data
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            throw new Error(data.error || "Failed to add input");
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(`Error adding input: ${error.message}`);
+    })
+    .finally(() => {
+        // Stop the timer and reset the button
+        clearInterval(timerInterval);
+        submitButton.disabled = false;
+        submitButton.style.backgroundColor = '';
+        submitButton.textContent = originalButtonText;
+    });
+    function updateAddInputButtonText() {
+        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+        submitButton.textContent = `🔄 Adding Input... ${elapsedSeconds}s`;
+    }
+}
 
 function generateEdits(inputId) {
     const generateButton = document.getElementById('generateEditsButton');
