@@ -109,7 +109,7 @@ def summarize_input(input_id):
 @app.route('/claim_edits')
 def claim_edits():
     edits = ClaimEdit.query.all()
-    return render_template('claim_edits.html', edits=edits)
+    return render_template('claim_edits.html', claim_edits=edits)
 
 @app.route('/conflicts')
 def conflicts():
