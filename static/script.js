@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', function() {
         addInputForm.addEventListener('submit', handleAddInput);
     }
 
+    const importLegacyCodeForm = document.getElementById('importLegacyCodeForm');
+    if (importLegacyCodeForm) {
+        importLegacyCodeForm.addEventListener('submit', handleAddLegacyCode);
+    }
+
     const deleteButton = document.getElementById('deleteButton');
     if (deleteButton) {
         // Remove any existing event listeners
@@ -119,6 +124,50 @@ function handleAddInput(event) {
     function updateAddInputButtonText() {
         const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
         submitButton.textContent = `🔄 Adding Input... ${elapsedSeconds}s`;
+    }
+}
+
+function handleAddLegacyCode(event) {
+    event.preventDefault();
+    const form = event.target;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    let startTime = Date.now();
+    let timerInterval;
+    // Disable the button and show loading state
+    submitButton.disabled = true;
+    submitButton.style.backgroundColor = 'gray';
+    updateAddLegacyCodeButtonText();
+    // Start the timer
+    timerInterval = setInterval(updateAddLegacyCodeButtonText, 1000);
+    // Send the form data
+    fetch('/add_input_legacy', {
+        method: 'POST',
+        body: new FormData(form)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            throw new Error(data.error || "Failed to add legacy code input");
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(`Error adding legacy code input: ${error.message}`);
+    })
+    .finally(() => {
+        // Stop the timer and reset the button
+        clearInterval(timerInterval);
+        submitButton.disabled = false;
+        submitButton.style.backgroundColor = '';
+        submitButton.textContent = originalButtonText;
+    });
+    function updateAddLegacyCodeButtonText() {
+        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+        submitButton.textContent = `🔄 Importing Legacy Code... ${elapsedSeconds}s`;
     }
 }
 

@@ -64,6 +64,47 @@ def add_input():
         db.session.rollback()
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route('/add_input_legacy', methods=['POST'])
+def add_input_legacy():
+    legacy_code = request.form.get('legacy_code')
+
+    if not legacy_code:
+        return jsonify({"success": False, "error": "No legacy code provided"}), 400
+
+    try:
+        new_input = Input(
+            document_name="Legacy Code",
+            document_url="🚫 Not Applicable",
+            document_contents=legacy_code,
+            document_type="Legacy Code"
+        )
+        db.session.add(new_input)
+        db.session.commit()
+
+        # Now that we have committed the new input, we can access its ID
+        new_input_id = new_input.id
+
+        # Call the summarize_input function
+        try:
+            summary, generated_name = generate_summary(new_input_id)
+            return jsonify({
+                "success": True, 
+                "message": "Legacy code added and summarized successfully",
+                "summary": summary,
+                "generated_name": generated_name
+            }), 200
+        except Exception as summarize_error:
+            # If summarization fails, we still return success for adding the input
+            logger.error(f"Error summarizing legacy code: {str(summarize_error)}")
+            return jsonify({
+                "success": True, 
+                "message": "Legacy code added successfully, but summarization failed",
+                "summarize_error": str(summarize_error)
+            }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route('/input/<int:input_id>/update', methods=['POST'])
 def update_input(input_id):
     input_item = Input.query.get_or_404(input_id)
