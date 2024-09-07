@@ -12,7 +12,73 @@ document.addEventListener('DOMContentLoaded', function() {
     if (analyzeButton) {
         analyzeButton.addEventListener('click', analyzeConflicts);
     }
+
+    const generateEditsButton = document.getElementById('generateEditsButton');
+    if (generateEditsButton) {
+        // Remove any existing event listeners
+        generateEditsButton.replaceWith(generateEditsButton.cloneNode(true));
+
+        // Get the new button (after replacing)
+        const newGenerateEditsButton = document.getElementById('generateEditsButton');
+
+        newGenerateEditsButton.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent any default action
+            event.stopPropagation(); // Stop event from bubbling up
+
+            const inputId = this.dataset.inputId;
+            if (!this.disabled) { // Check if button is not already disabled
+                generateEdits(inputId);
+            }
+        });
+    }
 });
+
+function generateEdits(inputId) {
+    const generateButton = document.getElementById('generateEditsButton');
+    let startTime = Date.now();
+    let timerInterval;
+
+    // Disable the button and show loading state
+    generateButton.disabled = true;
+    generateButton.style.backgroundColor = 'gray';
+    updateGenerateButtonText();
+
+    // Start the timer
+    timerInterval = setInterval(updateGenerateButtonText, 1000);
+
+    // Call the generate_edits endpoint
+    fetch(`/input/${inputId}/generate_edits`, {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Response data:', data); // For debugging
+        if (data.success) {
+            // Show an alert with the returned string
+            alert(data.message);
+            // Refresh the page to show new edits
+            location.reload();
+        } else {
+            throw new Error(data.error || "Failed to generate edits");
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(`Error generating edits: ${error.message}`);
+    })
+    .finally(() => {
+        // Stop the timer and reset the button
+        clearInterval(timerInterval);
+        generateButton.disabled = false;
+        generateButton.style.backgroundColor = '';
+        generateButton.textContent = '✨ Generate Edits ✨';
+    });
+
+    function updateGenerateButtonText() {
+        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+        generateButton.textContent = `🔄 Generating Edits... ${elapsedSeconds}s 🔄`;
+    }
+}
 
 function setupEditableSummary(summary) {
     const markdownContent = summary.querySelector('.markdown-content');

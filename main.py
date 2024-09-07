@@ -7,6 +7,7 @@ from conflicts_gpt import analyze_edit_conflicts
 import logging
 from sqlalchemy.exc import SQLAlchemyError
 from summarize_input import summarize_input as generate_summary
+from generate_claim_edits import generate_claim_edits
 
 app = Flask(__name__)
 
@@ -138,10 +139,12 @@ def delete_input(input_id):
 @app.route('/input/<int:input_id>/generate_edits', methods=['POST'])
 def generate_edits(input_id):
     try:
-        # Your edit generation logic here, using input_id
-        edits = generate_edits_function(input_id)
-        return jsonify(success=True, edits=edits)
+        # Generate the edits
+        result_message = generate_claim_edits(input_id)
+        
+        return jsonify(success=True, message=result_message)
     except Exception as e:
+        print(f"Error generating edits: {str(e)}")  # For debugging
         return jsonify(success=False, error=str(e)), 500
 
 @app.route('/claim_edits')
