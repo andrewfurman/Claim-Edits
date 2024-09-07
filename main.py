@@ -28,16 +28,36 @@ def index():
 @app.route('/add_input', methods=['POST'])
 def add_input():
     document_url = request.form.get('document_url')
-    
+
     if not document_url:
         return jsonify({"success": False, "error": "No URL provided"}), 400
-    
+
     try:
         new_input = Input.create_from_url(document_url)
         if new_input:
             db.session.add(new_input)
             db.session.commit()
-            return jsonify({"success": True, "message": "Input added successfully"}), 200
+
+            # Now that we have committed the new input, we can access its ID
+            new_input_id = new_input.id
+
+            # Call the summarize_input function
+            try:
+                summary, generated_name = generate_summary(new_input_id)
+                return jsonify({
+                    "success": True, 
+                    "message": "Input added and summarized successfully",
+                    "summary": summary,
+                    "generated_name": generated_name
+                }), 200
+            except Exception as summarize_error:
+                # If summarization fails, we still return success for adding the input
+                logger.error(f"Error summarizing input: {str(summarize_error)}")
+                return jsonify({
+                    "success": True, 
+                    "message": "Input added successfully, but summarization failed",
+                    "summarize_error": str(summarize_error)
+                }), 200
         else:
             return jsonify({"success": False, "error": "Failed to create input from URL"}), 400
     except Exception as e:
