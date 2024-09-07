@@ -1,9 +1,8 @@
 {% include 'header.html' %}
+<div class="content-container">
     <main>
-        <h2>Input Documentation</h2>
-        <p>This page displays input documentation for where claim edit requirements are sourced from.</p>
-
-        <table>
+        <h2>Input Documentation Inventory</h2>
+        <table class="inputs-table">
             <thead>
                 <tr>
                     <th>Document Name</th>
@@ -33,11 +32,20 @@
             <form id="addInputForm" method="POST" action="{{ url_for('add_input') }}" class="inline-form">
                 <label for="document_url">Enter New Input URL:</label>
                 <input type="url" id="document_url" name="document_url" placeholder="Enter document URL" required>
-                <button type="submit" id="addInputButton">📄 Add Input</button>
+                <button type="submit">📄 Add Input</button>
+            </form>
+        </div>
+        <div class="add-input-container">
+            <h3>Import Legacy Code:</h3>
+            <form id="importLegacyCodeForm" method="POST" action="{{ url_for('add_input') }}" class="inline-form">
+                <label for="legacy_code">Enter Legacy Code:</label>
+                <textarea id="legacy_code" name="legacy_code" placeholder="Paste your legacy code here" rows="4"></textarea>
+                <button type="submit" id="importLegacyCodeButton">📝 Import Legacy Code</button>
             </form>
         </div>
     </main>
+</div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

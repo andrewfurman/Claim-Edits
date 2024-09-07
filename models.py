@@ -13,12 +13,14 @@ db = SQLAlchemy(model_class=Base)
 
 class Input(db.Model):
     __tablename__ = 'inputs'
-
     id = db.Column(db.Integer, primary_key=True)
-    document_name = db.Column(db.Text, nullable=False)
-    document_url = db.Column(db.Text)
-    document_contents = db.Column(db.Text)
+    document_name = db.Column(db.Text, nullable=True)  # Change this line to allow null values
+    document_url = db.Column(db.Text, nullable=True)
+    document_contents = db.Column(db.Text, nullable=True)
     document_summary = db.Column(db.Text, nullable=True, default='')
+    document_type = db.Column(db.Text, nullable=False, default='unknown')  # Set default value
+
+    # ... rest of the model ...
 
     # Add relationship to ClaimEdits
     claim_edits = db.relationship('ClaimEdit', back_populates='input', cascade='all, delete-orphan')
@@ -39,6 +41,7 @@ class Input(db.Model):
 
             if 'application/pdf' in content_type:
                 document_contents = extract_text_from_pdf(url)
+                document_type = "PDF"
                 logging.info("Extracted text from PDF")
             else:
                 encodings = ['utf-8', 'latin-1', 'iso-8859-1', 'windows-1252']

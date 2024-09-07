@@ -16,6 +16,7 @@ beautifulsoup4 = "^4.12.3"
 pdfplumber = "^0.11.4"
 openai = "^1.43.0"
 flask-migrate = "^4.0.7"
+logger = "^1.4"
 
 [tool.pyright]
 # https://github.com/microsoft/pyright/blob/main/docs/configuration.md

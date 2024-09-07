@@ -2,46 +2,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const summaries = document.querySelectorAll('.editable-summary');
     summaries.forEach(setupEditableSummary);
 
-    // Add event listener for the add input form
-    const addInputForm = document.getElementById('addInputForm');
-    const addInputButton = document.getElementById('addInputButton');
-
-    if (addInputForm) {
-        addInputForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            addInputButton.textContent = 'Adding...';
-            addInputButton.disabled = true;
-
-            fetch(this.action, {
-                method: 'POST',
-                body: new FormData(this),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.error || 'Failed to add input');
-                    });
-                }
-                return response.text();
-            })
-            .then(() => {
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert(`Error adding input: ${error.message}`);
-            })
-            .finally(() => {
-                addInputButton.textContent = 'Add Input';
-                addInputButton.disabled = false;
-            });
-        });
-    }
-
     const documentName = document.getElementById('documentName');
     if (documentName) {
         documentName.contentEditable = false;
         setupEditableDocumentName(documentName);
+    }
+
+    const analyzeButton = document.getElementById('analyzeConflicts');
+    if (analyzeButton) {
+        analyzeButton.addEventListener('click', analyzeConflicts);
     }
 });
 
@@ -150,7 +119,7 @@ function generateSummary(inputId) {
         if (data.success) {
             // Convert summary to string if it's an array
             let summaryText = Array.isArray(data.summary) ? data.summary.join('\n') : data.summary;
-            
+
             summaryElement.innerHTML = `
                 <div class="markdown-content">${marked.parse(summaryText)}</div>
                 <div class="markdown-source" style="display: none;">${summaryText}</div>
@@ -234,3 +203,53 @@ function saveDocumentName(element) {
         element.textContent = originalContent;
     });
 }
+
+function analyzeConflicts() {
+    const analyzeButton = document.getElementById('analyzeConflicts');
+    const resultsDiv = document.getElementById('conflictResults');
+    let startTime = Date.now();
+    let timerInterval;
+
+    // Disable the button and show loading state
+    analyzeButton.disabled = true;
+    analyzeButton.style.backgroundColor = 'gray';
+    updateButtonText();
+
+    // Start the timer
+    timerInterval = setInterval(updateButtonText, 1000);
+
+    // Call the analyze_conflicts endpoint
+    fetch('/analyze_conflicts', {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Parse the summary using marked and create HTML
+            const summaryHtml = marked.parse(data.summary);
+            resultsDiv.innerHTML = `
+                <h3>Conflict Analysis Results:</h3>
+                <div class="markdown-content">${summaryHtml}</div>
+            `;
+        } else {
+            resultsDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultsDiv.innerHTML = `<p>Error analyzing conflicts: ${error.message}</p>`;
+    })
+    .finally(() => {
+        // Stop the timer and reset the button
+        clearInterval(timerInterval);
+        analyzeButton.disabled = false;
+        analyzeButton.style.backgroundColor = '';
+        analyzeButton.textContent = '✨ Analyze Claim Edits for Conflicting Logic ✨';
+    });
+
+    function updateButtonText() {
+        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+        analyzeButton.textContent = `🔄 Analyzing Claim Edits for Conflicting Logic... ${elapsedSeconds} 🔄`;
+    }
+}
+

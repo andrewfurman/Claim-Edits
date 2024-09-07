@@ -1,0 +1,20 @@
+{% include 'header.html' %}
+<div class="content-container">
+    <main>
+        <h2>Claim Conflicts Analysis</h2>
+        <p>This page will display conflicts between claim edits.</p>
+        <button id="analyzeConflicts" class="generate-edits-btn">✨ Analyze Claim Edits for Conflicting Logic ✨</button>
+        <div id="conflictResults">
+            <!-- Conflicts will appear here -->
+        </div>
+    </main>
+</div>
+<script>
+    // Ensure marked is configured to your preferences
+    marked.setOptions({
+        breaks: true, // Convert line breaks to <br>
+        gfm: true, // GitHub Flavored Markdown
+    });
+</script>
+</body>
+</html>

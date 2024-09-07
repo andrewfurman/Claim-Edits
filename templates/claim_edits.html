@@ -1,0 +1,34 @@
+{% include 'header.html' %}
+<div class="content-container">
+  <main>
+    <h2>Claim Edits Inventory</h2>
+    <div class="table-wrapper">
+       <table class="claim-edits-table">
+         <thead>
+           <tr>
+             <th>ID</th>
+             <th>Input Name</th>
+             <th>Description</th>
+             <th>Message</th>
+             <th>Conditions</th>
+             <th>Non-Conditions</th>
+           </tr>
+         </thead>
+         <tbody>
+           {% for edit in claim_edits %}
+           <tr>
+             <td>{{ edit.id }}</td>
+             <td><a href="{{ url_for('input_contents', input_id=edit.input.id) }}">{{ edit.input.document_name }}</a></td>
+             <td><div class="cell-content">{{ edit.edit_description }}</div></td>
+             <td><div class="cell-content">{{ edit.edit_message }}</div></td>
+             <td><div class="cell-content">{{ edit.edit_conditions }}</div></td>
+             <td><div class="cell-content">{{ edit.edit_non_conditions }}</div></td>
+           </tr>
+           {% endfor %}
+         </tbody>
+       </table>
+     </div>
+  </main>
+</div>
+</body>
+</html>

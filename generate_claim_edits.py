@@ -23,7 +23,7 @@ def generate_claim_edits(input_id):
         "gpt-4o-mini",  # or whichever model you prefer
         "messages": [{
             "role": "system",
-            "content": "Extract claim edits from the given document."
+            "content": "Extract claim edits from the given document. Make sure that this includes all data validations that are required. Also document an edit if there is logic to ignore a specific data validation if certain conditions are met."
         }, {
             "role": "user",
             "content": document_contents
@@ -53,7 +53,7 @@ def generate_claim_edits(input_id):
                                         "type":
                                         "string",
                                         "description":
-                                        "Message for the claim edit. This is the friendly suggestion displayed to the healthcare provider (doctor) indicating that a data requirement on the Claim that they submited has not been met. This should be phrased as a friendly suggestion such as We recommned that you fill out this data segment when submitting this specific type of claim"
+                                        "Message for the claim edit. This is the friendly suggestion displayed to the healthcare provider (doctor) indicating that a data requirement on the Claim that they submited has not been met. This should be phrased as a friendly suggestion such as We recommned that you fill out this data segment when submitting this specific type of claim."
                                     },
                                     "edit_conditions": {
                                         "type":

@@ -15,33 +15,53 @@ body {
 }
 
 /* Typography */
-h1 {
+h1, h2, h3 {
   margin: 0 0 10px;
-  color: var(--white);
 }
 
-h2 {
-  margin: 0 0 10px;
+h1, h2 {
   color: var(--pwc-dark-blue);
 }
 
-h1.header-title {
-  font-size: 1.5rem;
-}
-
-/* Layout */
+/* Header styles */
 header {
   background-color: var(--pwc-dark-blue);
   color: var(--white);
-  padding: 20px;
-  text-align: center;
+  padding: 20px 0;
+  width: 100%;
 }
 
-main {
-  max-width: 100%;
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--white);
+}
+
+.header-links {
+  display: flex;
+  gap: 20px;
+}
+
+/* Content container */
+.content-container {
+  width: 100%;
   margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
+}
+
+main {
+  width: 100%;
 }
 
 /* Links */
@@ -57,11 +77,15 @@ a:hover {
 }
 
 .header-link {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 18px;
   color: var(--white);
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.header-link:hover {
+  color: var(--light-gray);
+  text-decoration: underline;
 }
 
 /* Tables */
@@ -82,30 +106,26 @@ th, td {
 }
 
 thead {
-  background-color: #1e2a5a; /* PwC dark blue */
-  color: white;
+  background-color: var(--pwc-dark-blue);
+  color: var(--white);
 }
 
 tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-/* Document name column */
-th:first-child,
-td:first-child {
-  width: 25%;
-  word-break: break-all;
-}
-
-/* Document summary column */
-th:nth-child(2),
-td:nth-child(2) {
-  width: 75%;
-}
-
 /* Inputs page table styles */
 .inputs-table {
-  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse; /* Changed from separate to collapse */
+  /* Removed border-spacing */
+}
+
+.inputs-table th,
+.inputs-table td {
+  padding: 15px;
+  vertical-align: top;
+  border: 1px solid #ddd;
 }
 
 .inputs-table th:first-child,
@@ -118,24 +138,44 @@ td:nth-child(2) {
   width: 75%;
 }
 
+.inputs-table .editable-summary {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.inputs-table .editable-summary .markdown-content {
+  max-height: none;
+  overflow-y: visible;
+}
+
+.inputs-table tr {
+  margin-bottom: 1em;
+}
+
+.inputs-table td {
+  word-wrap: break-word;
+  white-space: normal;
+}
+.inputs-table a {
+  word-break: break-word;
+}
+
 /* Forms and buttons */
 form {
   margin-top: 20px;
-  max-width: 300px;
 }
 
-/* Update the existing styles for form inputs */
 form input[type="url"],
 form button,
 button,
 input[type="submit"] {
-    padding: 10px 15px;
-    margin-bottom: 10px;
-    font-weight: bold;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:hover,
@@ -148,6 +188,7 @@ form button:hover {
   position: fixed;
   top: 20px;
   right: 20px;
+  z-index: 1000;
 }
 
 /* Code and editable content */
@@ -188,39 +229,6 @@ pre {
   box-sizing: border-box;
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
-  table, thead, tbody, th, td, tr {
-    display: block;
-  }
-
-  tr {
-    margin-bottom: 10px;
-    border: 1px solid var(--border-color);
-  }
-
-  td {
-    border: none;
-    position: relative;
-    padding-left: 50%;
-    word-break: break-all;
-  }
-
-  td:before {
-    content: attr(data-label);
-    position: absolute;
-    left: 6px;
-    width: 45%;
-    font-weight: bold;
-  }
-}
-
-/* If there's a specific container for the summary, make it full width */
-.summary-container {
-  width: 100%;
-  max-width: 100%;
-}
-
 /* Editable summary styles */
 .editable-summary {
   padding: 10px;
@@ -231,7 +239,6 @@ pre {
   background-color: #f0f0f0;
 }
 
-/* Remove border for summaries in table cells */
 td .editable-summary {
   border: none;
   padding: 0;
@@ -263,103 +270,166 @@ td .editable-summary {
   cursor: not-allowed;
 }
 
-/* Add this to your existing CSS */
-.inline-form {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.inline-form label {
-    white-space: nowrap;
-}
-
-.inline-form input[type="url"] {
-    flex-grow: 1;
-    margin-bottom: 0;
-}
-
-.inline-form button {
-    width: auto;
-    margin-bottom: 0;
-}
-
-/* Add this to your existing CSS */
+/* Inline form styles */
 .add-input-container {
-    width: 100%;
-    margin-top: 20px;
+  width: 100%;
+  margin-top: 20px;
 }
 
 .inline-form {
-    display: flex;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 10px;
 }
 
 .inline-form label {
-    white-space: nowrap;
-    margin-right: 10px;
+  font-weight: bold;
 }
 
-.inline-form input[type="url"] {
-    flex-grow: 1;
-    margin-right: 10px;
-    margin-bottom: 0;
+.inline-form input[type="url"],
+.inline-form textarea {
+  flex-grow: 1;
+  margin-bottom: 0;
+  min-width: 0;
+  background-color: white;
+  color: var(--pwc-dark-blue);
+  border: 1px solid var(--pwc-dark-blue);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.inline-form textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
 .inline-form button {
-    width: auto;
-    white-space: nowrap;
-    margin-bottom: 0;
-    padding: 10px 20px;
+  align-self: flex-start;
+  white-space: nowrap;
+  margin-bottom: 0;
+  padding: 10px 20px;
+  background-color: var(--pwc-dark-blue);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-/* Add specific styles for the URL input */
-.inline-form input[type="url"] {
-    flex-grow: 1;
-    margin-right: 10px;
-    margin-bottom: 0;
-    min-width: 100ch; /* Set minimum width to 100 characters */
-    background-color: white;
-    color: var(--pwc-dark-blue);
-    border: 1px solid var(--pwc-dark-blue);
+.inline-form button:hover {
+  background-color: var(--pwc-light-blue);
 }
-/* Keep the button styles */
-.inline-form button {
-    width: auto;
-    white-space: nowrap;
-    margin-bottom: 0;
-    padding: 10px 20px;
-    background-color: var(--pwc-dark-blue);
-    color: var(--white);
-}
-/* Add a hover effect for the input */
+
 .inline-form input[type="url"]:hover,
-.inline-form input[type="url"]:focus {
-    border-color: var(--pwc-light-blue);
-    outline: none;
+.inline-form input[type="url"]:focus,
+.inline-form textarea:hover,
+.inline-form textarea:focus {
+  border-color: var(--pwc-light-blue);
+  outline: none;
 }
 
-/* Add this to your existing CSS in static/styles.css */
-table {
+/* Claim edits table styles */
+.table-wrapper {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.claim-edits-table {
+  width: 100%;
   table-layout: fixed;
+  border-collapse: collapse;
 }
 
-th:nth-child(1),
-td:nth-child(1) {
-  width: 5%; /* Edit ID column */
+.claim-edits-table th,
+.claim-edits-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  vertical-align: top;
 }
 
-th:nth-child(2),
-td:nth-child(2) {
-  width: 15%; /* Description column */
+.claim-edits-table th {
+  background-color: var(--pwc-dark-blue);
+  color: var(--white);
 }
 
-th:nth-child(3),
-td:nth-child(3),
-th:nth-child(4),
-td:nth-child(4),
-th:nth-child(5),
-td:nth-child(5) {
-  width: 26.67%; /* Message, Conditions, and Non-Conditions columns */
+.claim-edits-table td {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.claim-edits-table .cell-content {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.claim-edits-table th:nth-child(1),
+.claim-edits-table td:nth-child(1) { width: 50px; }
+
+.claim-edits-table th:nth-child(2),
+.claim-edits-table td:nth-child(2) { width: 250px; }
+
+.claim-edits-table th:nth-child(3),
+.claim-edits-table td:nth-child(3),
+.claim-edits-table th:nth-child(4),
+.claim-edits-table td:nth-child(4),
+.claim-edits-table th:nth-child(5),
+.claim-edits-table td:nth-child(5),
+.claim-edits-table th:nth-child(6),
+.claim-edits-table td:nth-child(6) { width: calc((100% - 200px) / 4); }
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-links {
+    margin-top: 10px;
+  }
+
+  .inline-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inline-form input[type="url"] {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .claim-edits-table, .claim-edits-table thead, .claim-edits-table tbody, .claim-edits-table th, .claim-edits-table td, .claim-edits-table tr {
+    display: block;
+  }
+
+  .claim-edits-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .claim-edits-table tr {
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+
+  .claim-edits-table td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  .claim-edits-table td:before {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    content: attr(data-label);
+    font-weight: bold;
+  }
 }
