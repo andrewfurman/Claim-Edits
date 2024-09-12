@@ -34,7 +34,7 @@ def summarize_input(input_id):
                         },
                         "document_type": {
                             "type": "string",
-                            "description": "The type of document, e.g., 'Policy', 'Report', 'Guide', 'Manual', etc."
+                            "description": "The type of document should be either '📜 Medicaid Regulation PDF', '📜 CMS Regulation PDF', '💽 Legacy Code', ' Provider Contract' ."
                         }
                     },
                     "required": ["summary", "generated_name", "document_type"],
