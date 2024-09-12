@@ -31,9 +31,13 @@ def summarize_input(input_id):
                         "generated_name": {
                             "type": "string",
                             "description": "A generated name for the document based on its content - this should include the name of the organization that produced the document followed by a very descriptive name that fits in under 100 characters"
+                        },
+                        "document_type": {
+                            "type": "string",
+                            "description": "The type of document, e.g., 'Policy', 'Report', 'Guide', 'Manual', etc."
                         }
                     },
-                    "required": ["summary", "generated_name"],
+                    "required": ["summary", "generated_name", "document_type"],
                     "additionalProperties": False
                 }
             }
@@ -43,15 +47,13 @@ def summarize_input(input_id):
     # Send request to ChatGPT API
     response = client.chat.completions.create(**payload)
 
-    # Extract the summary and generated name from the response
+    # Extract the summary, generated name, and document type from the response
     result = json.loads(response.choices[0].message.content)
 
-    # Update the document_summary and name in the database
+    # Update the document_summary, name, and document_type in the database
     input_doc.document_summary = result['summary']
     input_doc.document_name = result['generated_name']
+    input_doc.document_type = result['document_type']
     db.session.commit()
 
     return result['summary'], result['generated_name']
-
-# Example usage:
-# summary, name = summarize_input(1)  # Where 1 is the ID of the input you want to summarize
