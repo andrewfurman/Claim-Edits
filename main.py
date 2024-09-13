@@ -22,8 +22,16 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    inputs = Input.query.all()
-    return render_template('inputs.html', inputs=inputs)
+    try:
+        inputs = Input.query.all()
+    except Exception as e:
+        app.logger.error(f"Database error: {str(e)}")
+        inputs = []  # Set inputs to an empty list if there's an error
+        error_message = "Database connection error. Please try again later."
+    else:
+        error_message = None
+
+    return render_template('inputs.html', inputs=inputs, error_message=error_message)
 
 @app.route('/add_input', methods=['POST'])
 def add_input():
