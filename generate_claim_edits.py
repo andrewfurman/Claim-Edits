@@ -5,28 +5,44 @@ from models import db, Input, ClaimEdit
 
 client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
 
-
 def get_input_contents(input_id):
     input_doc = Input.query.get(input_id)
     if not input_doc:
         raise ValueError(f"No input found with id {input_id}")
     return input_doc.document_contents
 
+def get_input_summary(input_id):
+    input_doc = Input.query.get(input_id)
+    if not input_doc:
+        raise ValueError(f"No input found with id {input_id}")
+    return input_doc.document_summary
 
 def generate_claim_edits(input_id):
     # Get the input document contents
     document_contents = get_input_contents(input_id)
+    document_summary = get_input_summary(input_id)
+
+    # Delete existing claim edits for this input_id
+    ClaimEdit.query.filter_by(input_id=input_id).delete()
+    db.session.commit()
 
     # Prepare the ChatGPT API request
     payload = {
-        "model":
-        "gpt-4o-mini",  # or whichever model you prefer
-        "messages": [{
+        # "model": "gpt-4o-mini",
+        "model": "gpt-4o-2024-08-06", # Full ChatGPT Model with Structured Inputs Enabled, change to regular 4o after October 2024
+        "messages": [
+        {
             "role": "system",
-            "content": "Extract claim edits from the given document. Make sure that this includes all data validations that are required. Also document an edit if there is logic to ignore a specific data validation if certain conditions are met."
-        }, {
+            "content": """
+                You are an assistant that extracts claim edits information from the given document.
+                Make sure that this includes all data validations that are required for health insurance claims 
+                that are specifically mentioned in this document.
+                Make sure to not create any edits that are not directly outlined in the document included."
+            """
+        }, 
+        {
             "role": "user",
-            "content": document_contents
+        "content": f"Here is a summary of the document:\n{document_summary}\n\nHere are the document contents that need claim edits extracted from them:\n{document_contents}"
         }],
         "response_format": {
             "type": "json_schema",
@@ -92,9 +108,6 @@ def generate_claim_edits(input_id):
     # Extract the claim edits from the response
     claim_edits_data = json.loads(
         response.choices[0].message.content)['claim_edits']
-
-    # Delete existing claim edits for this input_id
-    ClaimEdit.query.filter_by(input_id=input_id).delete()
 
     # Update the database with new claim edits
     input_doc = Input.query.get(input_id)

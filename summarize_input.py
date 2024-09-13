@@ -11,7 +11,8 @@ def summarize_input(input_id):
 
     # Prepare the ChatGPT API request
     payload = {
-        "model": "gpt-4o-mini",  # or whichever model you prefer
+        # "model": "gpt-4o-mini",
+        "model": "gpt-4o-2024-08-06",
         "messages": [
             {"role": "system", "content": "You are a helpful assistant that summarizes documents and generates names for them."},
             {"role": "user", "content": f"Please summarize the following document in three bullet points, each starting with an emoji, and generate a name for it. Format the summary as markdown:\n\n{input_doc.document_contents}"}
