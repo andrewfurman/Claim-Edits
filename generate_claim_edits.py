@@ -28,8 +28,8 @@ def generate_claim_edits(input_id):
 
     # Prepare the ChatGPT API request
     payload = {
-        # "model": "gpt-4o-mini",
-        "model": "gpt-4o-2024-08-06", # Full ChatGPT Model with Structured Inputs Enabled, change to regular 4o after October 2024
+        "model": "gpt-4o-mini",
+        #"model": "gpt-4o-2024-08-06", # Full ChatGPT Model with Structured Inputs Enabled, change to regular 4o after October 2024
         "messages": [
         {
             "role": "system",
@@ -42,7 +42,7 @@ def generate_claim_edits(input_id):
         }, 
         {
             "role": "user",
-        "content": f"Here is a summary of the document:\n{document_summary}\n\nHere are the document contents that need claim edits extracted from them:\n{document_contents}"
+        "content": f"Here is a summary of the document containing the claim edits:\n{document_summary}\n\nHere are the document contents that need claim edits extracted from them:\n{document_contents}"
         }],
         "response_format": {
             "type": "json_schema",
